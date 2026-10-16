@@ -68,7 +68,7 @@
   },
   "description": "Taktik AI Studio \u2014 native desktop app for Windows, macOS and Linux. Create Smarter. Market Faster. Grow Further.",
   "devDependencies": {
-    "electron": "39.0.0",
+    "electron": "37.10.3",
     "electron-builder": "^26.0.12"
   },
   "license": "UNLICENSED",
