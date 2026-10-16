@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Offline Toolkit — Taktik AI Studio</title>
+<script>window.__taktikErrors=[];window.addEventListener("error",e=>window.__taktikErrors.push(String(e.message||e.error)));</script>
+<style>
+  :root{
+    --navy:#0B1220; --navy2:#111C33; --card:#141F38; --line:#1E2D4F;
+    --blue:#2563EB; --blue2:#1D4ED8; --green:#10B981; --txt:#FFFFFF;
+    --mut:#9CA3AF; --mut2:#6B7280;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{background:var(--navy);color:var(--txt);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    display:flex;min-height:100vh}
+  /* sidebar */
+  aside{width:248px;flex:0 0 248px;background:var(--navy2);border-right:1px solid var(--line);
+    padding:22px 14px;display:flex;flex-direction:column;gap:4px;position:sticky;top:0;height:100vh}
+  .brand{display:flex;align-items:center;gap:10px;padding:4px 8px 18px}
+  .brand .mark{width:36px;height:36px;border-radius:10px;flex:0 0 36px;
+    background:linear-gradient(135deg,#1D4ED8,#2563EB);display:flex;align-items:center;
+    justify-content:center;font-weight:900;font-size:19px}
+  .brand .mark i{color:var(--green);font-style:normal}
+  .brand b{font-size:15px;letter-spacing:-.2px;display:block}
+  .brand small{color:var(--mut);font-size:11px}
+  .offline-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(16,185,129,.12);
+    color:var(--green);font-size:11px;font-weight:700;letter-spacing:.6px;
+    padding:5px 10px;border-radius:999px;margin:0 8px 14px}
+  .offline-badge .dot{width:7px;height:7px;border-radius:50%;background:var(--green)}
+  nav button{display:flex;align-items:center;gap:10px;width:100%;text-align:left;
+    background:none;border:0;color:var(--mut);font-size:14px;font-weight:600;
+    padding:11px 12px;border-radius:10px;cursor:pointer}
+  nav button:hover{background:rgba(37,99,235,.12);color:var(--txt)}
+  nav button.active{background:rgba(37,99,235,.18);color:var(--txt)}
+  nav button .ico{font-size:17px;width:22px;text-align:center}
+  aside .foot{margin-top:auto;padding:10px 8px;color:var(--mut2);font-size:11px;line-height:1.6}
+  /* main */
+  main{flex:1;padding:34px 40px;max-width:1060px}
+  section.tool{display:none}
+  section.tool.active{display:block;animation:fade .18s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  h1{font-size:28px;letter-spacing:-.6px;margin-bottom:8px}
+  .sub{color:var(--mut);font-size:14px;line-height:1.65;margin-bottom:26px;max-width:720px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px}
+  .card h3{font-size:16px;margin-bottom:6px}
+  .card p{color:var(--mut);font-size:13.5px;line-height:1.6;margin-bottom:12px}
+  .tag{display:inline-block;font-size:11px;font-weight:700;color:var(--green);
+    background:rgba(16,185,129,.12);padding:3px 9px;border-radius:999px;margin-bottom:10px}
+  .btn{background:var(--blue);color:#fff;border:0;border-radius:9px;padding:10px 18px;
+    font-size:13.5px;font-weight:700;cursor:pointer}
+  .btn:hover{background:var(--blue2)}
+  .btn.ghost{background:transparent;border:1px solid var(--line);color:var(--txt)}
+  .btn.ghost:hover{border-color:var(--blue)}
+  .btn.sm{padding:7px 13px;font-size:12.5px}
+  .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+  /* builder */
+  .builder{background:var(--card);border:1px solid var(--line);border-radius:14px;
+    padding:24px;margin-bottom:18px}
+  .builder h3{margin-bottom:4px}
+  .builder .why{color:var(--green);font-size:13px;margin-bottom:16px}
+  .field{margin-bottom:12px}
+  .field label{display:block;font-size:12.5px;color:var(--mut);margin-bottom:6px;font-weight:600}
+  .field input,.field textarea,.field select{width:100%;background:var(--navy);border:1px solid var(--line);
+    color:var(--txt);border-radius:9px;padding:11px 13px;font-size:14px;font-family:inherit}
+  .field input:focus,.field textarea:focus{outline:none;border-color:var(--blue)}
+  .preview{background:var(--navy);border:1px dashed var(--line);border-radius:10px;
+    padding:16px;font-size:16px;line-height:1.6;margin:16px 0;min-height:60px}
+  .preview:empty::before{content:"Your result appears here…";color:var(--mut2)}
+  pre.tpl{background:var(--navy);border:1px solid var(--line);border-radius:10px;padding:14px;
+    font-size:13px;line-height:1.7;color:var(--mut);white-space:pre-wrap;font-family:inherit;margin-bottom:12px}
+  .ex{font-size:13px;color:var(--mut);border-left:3px solid var(--green);padding-left:12px;margin:10px 0 14px;line-height:1.6}
+  .ex b{color:var(--txt)}
+  .backlink{color:var(--blue);font-size:13px;cursor:pointer;background:none;border:0;font-weight:600;margin-bottom:16px}
+  /* calendar */
+  .cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+  .cal-head h2{font-size:20px}
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}
+  .cal-dow{color:var(--mut2);font-size:11px;font-weight:700;text-align:center;padding:6px;text-transform:uppercase;letter-spacing:.8px}
+  .cal-day{background:var(--card);border:1px solid var(--line);border-radius:10px;min-height:96px;
+    padding:8px;cursor:pointer;font-size:12px}
+  .cal-day:hover{border-color:var(--blue)}
+  .cal-day.dim{opacity:.35}
+  .cal-day.today{border-color:var(--green)}
+  .cal-day .d{font-weight:800;font-size:13px;margin-bottom:4px}
+  .cal-day .idea{background:rgba(37,99,235,.2);border-radius:6px;padding:3px 6px;margin-bottom:3px;
+    font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .cal-day .more{color:var(--mut2);font-size:10.5px}
+  /* editor drawer */
+  .drawer{position:fixed;right:0;top:0;bottom:0;width:380px;max-width:92vw;background:var(--navy2);
+    border-left:1px solid var(--line);padding:26px;transform:translateX(105%);transition:transform .22s ease;z-index:50;overflow-y:auto}
+  .drawer.open{transform:none}
+  .drawer h3{margin-bottom:4px}
+  .drawer .date{color:var(--mut);font-size:13px;margin-bottom:18px}
+  .idea-item{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);
+    border-radius:9px;padding:10px 12px;font-size:13.5px;margin-bottom:8px}
+  .idea-item span{flex:1}
+  .idea-item button{background:none;border:0;color:var(--mut2);cursor:pointer;font-size:15px}
+  .idea-item button:hover{color:#F87171}
+  .overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);opacity:0;pointer-events:none;transition:opacity .2s;z-index:40}
+  .overlay.open{opacity:1;pointer-events:auto}
+  /* formatter */
+  .stats{display:flex;gap:14px;flex-wrap:wrap;margin:14px 0}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 16px;font-size:13px;color:var(--mut)}
+  .stat b{color:var(--txt);font-size:16px;display:block}
+  textarea.code{width:100%;min-height:220px;background:var(--navy);border:1px solid var(--line);color:var(--txt);
+    border-radius:10px;padding:14px;font-size:14px;line-height:1.7;font-family:inherit;resize:vertical}
+  .toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--green);
+    color:#06281c;font-weight:700;font-size:13.5px;padding:11px 22px;border-radius:999px;opacity:0;
+    transition:all .25s;z-index:99;pointer-events:none}
+  .toast.show{opacity:1;transform:translateX(-50%)}
+  @media(max-width:760px){aside{display:none}main{padding:22px}}
+</style>
+</head>
+<body>
+<aside>
+  <div class="brand"><div class="mark">T<i>.</i></div><div><b>Taktik AI Studio</b><small>Offline Toolkit</small></div></div>
+  <div class="offline-badge"><span class="dot"></span>WORKS OFFLINE</div>
+  <nav id="nav">
+    <button data-t="hooks" class="active"><span class="ico">🪝</span>Hook Lab</button>
+    <button data-t="ctas"><span class="ico">📢</span>CTA Builder</button>
+    <button data-t="playbooks"><span class="ico">📚</span>Playbooks</button>
+    <button data-t="calendar"><span class="ico">🗓️</span>Content Calendar</button>
+    <button data-t="formatter"><span class="ico">✏️</span>Caption Formatter</button>
+  </nav>
+  <div class="foot">100% offline — everything runs on this computer. Your ideas never leave the device.<br><br>Taktik AI Studio · v1.1.0</div>
+</aside>
+
+<main>
+  <!-- HOOK LAB -->
+  <section class="tool active" id="tool-hooks">
+    <h1>🪝 Hook Lab</h1>
+    <p class="sub">Ten proven short-form video hook formulas. Pick one, fill in the blanks, get a scroll-stopping hook — no internet needed. For AI-generated hook banks, use the online Hook Bank tool.</p>
+    <div id="hook-list" class="grid"></div>
+    <div id="hook-builder" style="display:none">
+      <button class="backlink" data-back>← All formulas</button>
+      <div class="builder">
+        <h3 id="hb-name"></h3>
+        <div class="why" id="hb-why"></div>
+        <div class="ex" id="hb-example"></div>
+        <div id="hb-fields"></div>
+        <div class="preview" id="hb-preview"></div>
+        <div class="row">
+          <button class="btn" id="hb-copy">Copy hook</button>
+          <button class="btn ghost" id="hb-shuffle">Shuffle example</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA BUILDER -->
+  <section class="tool" id="tool-ctas">
+    <h1>📢 CTA Builder</h1>
+    <p class="sub">Five call-to-action archetypes that convert. Fill in the blanks and paste the result under any video, ad, or post.</p>
+    <div id="cta-list" class="grid"></div>
+    <div id="cta-builder" style="display:none">
+      <button class="backlink" data-back>← All CTA types</button>
+      <div class="builder">
+        <h3 id="cb-name"></h3>
+        <div class="why" id="cb-why"></div>
+        <div class="ex" id="cb-example"></div>
+        <div id="cb-fields"></div>
+        <div class="preview" id="cb-preview"></div>
+        <div class="row"><button class="btn" id="cb-copy">Copy CTA</button></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PLAYBOOKS -->
+  <section class="tool" id="tool-playbooks">
+    <h1>📚 Playbooks</h1>
+    <p class="sub">Niche marketing playbooks from Taktik AI Studio: the pain formula plus ready-to-run prompt templates. Copy any prompt and run it in the online AI tools when you're back — or in any AI assistant.</p>
+    <div id="pb-list"></div>
+  </section>
+
+  <!-- CALENDAR -->
+  <section class="tool" id="tool-calendar">
+    <h1>🗓️ Content Calendar</h1>
+    <p class="sub">Plan your month. Click any day to add content ideas — everything is saved on this computer automatically.</p>
+    <div class="cal-head">
+      <button class="btn ghost sm" id="cal-prev">← Prev</button>
+      <h2 id="cal-title"></h2>
+      <button class="btn ghost sm" id="cal-next">Next →</button>
+    </div>
+    <div class="cal-grid" id="cal-grid"></div>
+  </section>
+
+  <!-- FORMATTER -->
+  <section class="tool" id="tool-formatter">
+    <h1>✏️ Caption Formatter</h1>
+    <p class="sub">Write once, publish clean. Live counters plus one-click fixes for the classic broken-caption problems.</p>
+    <textarea class="code" id="fmt-input" placeholder="Paste or write your caption here…"></textarea>
+    <div class="stats">
+      <div class="stat"><b id="st-chars">0</b>characters</div>
+      <div class="stat"><b id="st-words">0</b>words</div>
+      <div class="stat"><b id="st-tags">0</b>hashtags</div>
+      <div class="stat"><b id="st-lines">0</b>lines</div>
+    </div>
+    <div class="row">
+      <button class="btn sm" id="fmt-breaks">Fix line breaks</button>
+      <button class="btn ghost sm" id="fmt-tags">Extract hashtags</button>
+      <button class="btn ghost sm" id="fmt-copy">Copy caption</button>
+    </div>
+    <div id="fmt-tags-out" style="margin-top:14px"></div>
+  </section>
+</main>
+
+<div class="overlay" id="overlay"></div>
+<div class="drawer" id="drawer">
+  <h3 id="dr-title">Ideas</h3>
+  <div class="date" id="dr-date"></div>
+  <div id="dr-ideas"></div>
+  <div class="field" style="margin-top:14px">
+    <label>New idea</label>
+    <input id="dr-input" placeholder="e.g. Morning routine reel…">
+  </div>
+  <div class="row">
+    <button class="btn sm" id="dr-add">Add idea</button>
+    <button class="btn ghost sm" id="dr-close">Done</button>
+  </div>
+</div>
+<div class="toast" id="toast">Copied ✓</div>
+
+<script src="playbooks-data.js"></script>
+<script>
+"use strict";
+/* ============ data ============ */
+const HOOKS = [
+ {id:"bold", name:"Bold Claim", why:"Why it works: stakes + specificity. A concrete promise earns the next 3 seconds.",
+  tpl:"This [product] will [bold result] in [timeframe].",
+  ex:"<b>Example:</b> This $12 serum will clear your breakouts in 14 days."},
+ {id:"problem", name:"Problem-First", why:"Why it works: pattern interrupt. Naming their pain makes them feel seen instantly.",
+  tpl:"Still struggling with [problem]? Here's what changed everything.",
+  ex:"<b>Example:</b> Still struggling with oily skin by noon? Here's what changed everything."},
+ {id:"curiosity", name:"Curiosity Gap", why:"Why it works: open loop. The brain hates unfinished information and keeps watching.",
+  tpl:"Nobody talks about [surprising thing] when it comes to [topic]…",
+  ex:"<b>Example:</b> Nobody talks about this $3 trick when it comes to photo lighting…"},
+ {id:"contrarian", name:"Contrarian", why:"Why it works: challenges beliefs. Disagreement triggers comments and watch time.",
+  tpl:"Stop doing [common advice]. Do [opposite] instead.",
+  ex:"<b>Example:</b> Stop posting every day. Do this instead."},
+ {id:"pov", name:"POV", why:"Why it works: identity + aspiration. Viewers project themselves into the scene.",
+  tpl:"POV: You finally found [solution] for [problem].",
+  ex:"<b>Example:</b> POV: You finally found a moisturizer for sensitive skin."},
+ {id:"stat", name:"Statistic Shock", why:"Why it works: authority + surprise. Numbers feel factual and stop the scroll.",
+  tpl:"[number]% of [audience] don't know [fact].",
+  ex:"<b>Example:</b> 87% of sellers don't know this Etsy SEO trick."},
+ {id:"dontbuy", name:"\"Don't Buy This\"", why:"Why it works: reverse psychology. A warning feels honest, which builds trust.",
+  tpl:"Don't buy [product] if [condition].",
+  ex:"<b>Example:</b> Don't buy this planner if you hate writing things down."},
+ {id:"demo", name:"Demo Tease", why:"Why it works: visual promise. Viewers stay to see the result with their own eyes.",
+  tpl:"Watch what happens when I [action] with [product].",
+  ex:"<b>Example:</b> Watch what happens when I test this on a grease stain."},
+ {id:"story", name:"Personal Story Opener", why:"Why it works: relatability. A personal struggle is more believable than any claim.",
+  tpl:"I [struggle] for [time period], then I tried [solution].",
+  ex:"<b>Example:</b> I wasted $400 on ads for 6 months, then I tried this script."},
+ {id:"challenge", name:"Challenge", why:"Why it works: stakes over time. Viewers follow along to see the outcome.",
+  tpl:"I tried [thing] for [number] days — here's what happened.",
+  ex:"<b>Example:</b> I tried posting at 6am for 30 days — here's what happened."}
+];
+const CTAS = [
+ {id:"urgency", name:"Urgency", why:"Why it works: loss aversion. People act faster to avoid missing out than to gain.",
+  tpl:"Only [number] left — [action] before [deadline].",
+  ex:"<b>Example:</b> Only 20 spots left — enroll before Sunday."},
+ {id:"proof", name:"Social Proof", why:"Why it works: safety in numbers. If others did it, it feels less risky.",
+  tpl:"Join [number]+ [audience] already [benefit].",
+  ex:"<b>Example:</b> Join 5,000+ sellers already automating captions."},
+ {id:"curious", name:"Curiosity", why:"Why it works: information gap. Tease the answer, gate it behind the click.",
+  tpl:"The [thing] nobody told you about [topic] — [action] to see it.",
+  ex:"<b>Example:</b> The setting nobody told you about Reels — tap follow to see it."},
+ {id:"direct", name:"Direct", why:"Why it works: clarity. One clear instruction removes decision friction.",
+  tpl:"[Action] now and [benefit].",
+  ex:"<b>Example:</b> Download now and plan 30 days of content tonight."},
+ {id:"soft", name:"Soft", why:"Why it works: low pressure. A gentle nudge converts the hesitant without resistance.",
+  tpl:"If you're curious, [low-pressure action].",
+  ex:"<b>Example:</b> If you're curious, the free guide is in my bio."}
+];
+
+/* ============ helpers ============ */
+const $ = s => document.querySelector(s);
+function toast(msg){ const t=$("#toast"); t.textContent=msg||"Copied ✓"; t.classList.add("show"); setTimeout(()=>t.classList.remove("show"),1600); }
+function copyText(txt){ (navigator.clipboard?navigator.clipboard.writeText(txt):Promise.reject()).then(()=>toast()).catch(()=>{ const ta=document.createElement("textarea"); ta.value=txt; document.body.appendChild(ta); ta.select(); try{document.execCommand("copy");toast();}catch(e){} ta.remove(); }); }
+function blanks(tpl){ const out=[]; const re=/\[([^\]]+)\]/g; let m; while((m=re.exec(tpl))) out.push(m[1]); return [...new Set(out)]; }
+
+/* ============ nav ============ */
+const navBtns=[...document.querySelectorAll("#nav button")];
+function showTool(id){
+  navBtns.forEach(b=>b.classList.toggle("active",b.dataset.t===id));
+  document.querySelectorAll("section.tool").forEach(s=>s.classList.toggle("active",s.id==="tool-"+id));
+  location.hash=id;
+}
+navBtns.forEach(b=>b.addEventListener("click",()=>showTool(b.dataset.t)));
+document.querySelectorAll("[data-back]").forEach(b=>b.addEventListener("click",()=>{
+  $("#hook-builder").style.display="none"; $("#hook-list").style.display="";
+  $("#cta-builder").style.display="none"; $("#cta-list").style.display="";
+}));
+
+/* ============ generic fill-in builder ============ */
+function openBuilder(kind, item){
+  const isHook = kind==="hook";
+  const listEl = isHook?$("#hook-list"):$("#cta-list");
+  const bEl = isHook?$("#hook-builder"):$("#cta-builder");
+  const p = isHook?"hb":"cb";
+  listEl.style.display="none"; bEl.style.display="";
+  $("#"+p+"-name").textContent=item.name;
+  $("#"+p+"-why").textContent=item.why;
+  $("#"+p+"-example").innerHTML=item.ex;
+  const fields=$("#"+p+"-fields"); fields.innerHTML="";
+  const vals={};
+  blanks(item.tpl).forEach(b=>{
+    vals[b]="";
+    const d=document.createElement("div"); d.className="field";
+    d.innerHTML=`<label>${b}</label><input data-k="${b}" placeholder="Type ${b.toLowerCase()}…">`;
+    fields.appendChild(d);
+  });
+  const render=()=>{
+    let out=item.tpl;
+    blanks(item.tpl).forEach(b=>{ out=out.replaceAll("["+b+"]", vals[b]||"["+b+"]"); });
+    $("#"+p+"-preview").textContent=out;
+  };
+  fields.querySelectorAll("input").forEach(i=>i.addEventListener("input",()=>{ vals[i.dataset.k]=i.value.trim(); render(); }));
+  render();
+  $("#"+p+"-copy").onclick=()=>{ const t=$("#"+p+"-preview").textContent; if(t) copyText(t); };
+  const sh=$("#"+p+"-shuffle"); if(sh) sh.onclick=()=>{ $("#"+p+"-example").innerHTML=item.ex; toast("Example refreshed"); };
+}
+function renderCards(){
+  $("#hook-list").innerHTML=HOOKS.map((h,i)=>
+    `<div class="card"><span class="tag">FORMULA ${i+1}</span><h3>${h.name}</h3><p>${h.why}</p><button class="btn sm" data-hook="${h.id}">Use this formula</button></div>`).join("");
+  $("#cta-list").innerHTML=CTAS.map((c,i)=>
+    `<div class="card"><span class="tag">TYPE ${i+1}</span><h3>${c.name}</h3><p>${c.why}</p><button class="btn sm" data-cta="${c.id}">Build CTA</button></div>`).join("");
+  document.querySelectorAll("[data-hook]").forEach(b=>b.addEventListener("click",()=>openBuilder("hook",HOOKS.find(h=>h.id===b.dataset.hook))));
+  document.querySelectorAll("[data-cta]").forEach(b=>b.addEventListener("click",()=>openBuilder("cta",CTAS.find(c=>c.id===b.dataset.cta))));
+}
+
+/* ============ playbooks ============ */
+function renderPlaybooks(){
+  const packs=window.TAKTIK_PLAYBOOKS||[];
+  $("#pb-list").innerHTML=packs.map(p=>`
+    <div class="card" style="margin-bottom:16px">
+      <span class="tag">${p.prompts.length} PROMPTS</span>
+      <h3>${p.title}</h3><p>${p.description}</p>
+      <pre class="tpl">${p.pain_formula.replace(/</g,"&lt;")}</pre>
+      ${p.prompts.map(pr=>`
+        <div style="border-top:1px solid var(--line);padding:14px 0">
+          <h3 style="font-size:14.5px">${pr.title}</h3>
+          <pre class="tpl">${pr.template.replace(/</g,"&lt;")}</pre>
+          <div class="row" style="margin-top:0">
+            <button class="btn sm" data-prompt="${pr.id}">Copy prompt</button>
+            <span style="font-size:12px;color:var(--mut2);align-self:center">Runs in: ${pr.tool_target} (online AI tool)</span>
+          </div>
+        </div>`).join("")}
+    </div>`).join("");
+  const all={}; packs.forEach(p=>p.prompts.forEach(pr=>all[pr.id]=pr.template));
+  document.querySelectorAll("[data-prompt]").forEach(b=>b.addEventListener("click",()=>copyText(all[b.dataset.prompt])));
+}
+
+/* ============ calendar ============ */
+const LS_KEY="taktik_offline_calendar_v1";
+const calStore=JSON.parse(localStorage.getItem(LS_KEY)||"{}");
+const saveCal=()=>localStorage.setItem(LS_KEY,JSON.stringify(calStore));
+let calY=new Date().getFullYear(), calM=new Date().getMonth();
+const MONTHS=["January","February","March","April","May","June","July","August","September","October","November","December"];
+function renderCal(){
+  $("#cal-title").textContent=MONTHS[calM]+" "+calY;
+  const first=new Date(calY,calM,1).getDay(), days=new Date(calY,calM+1,0).getDate();
+  const prevDays=new Date(calY,calM,0).getDate();
+  const today=new Date(); const tKey=today.getFullYear()+"-"+today.getMonth()+"-"+today.getDate();
+  let html=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].map(d=>`<div class="cal-dow">${d}</div>`).join("");
+  for(let i=first-1;i>=0;i--){ const d=prevDays-i; html+=`<div class="cal-day dim" data-nav="-1" data-d="${d}"><div class="d">${d}</div></div>`; }
+  for(let d=1;d<=days;d++){
+    const key=calY+"-"+calM+"-"+d, ideas=calStore[key]||[];
+    html+=`<div class="cal-day${key===tKey?" today":""}" data-key="${key}" data-d="${d}">
+      <div class="d">${d}</div>
+      ${ideas.slice(0,2).map(t=>`<div class="idea">${t.replace(/</g,"&lt;")}</div>`).join("")}
+      ${ideas.length>2?`<div class="more">+${ideas.length-2} more</div>`:""}
+    </div>`;
+  }
+  const tail=(7-((first+days)%7))%7;
+  for(let d=1;d<=tail;d++) html+=`<div class="cal-day dim" data-nav="1" data-d="${d}"><div class="d">${d}</div></div>`;
+  $("#cal-grid").innerHTML=html;
+  document.querySelectorAll(".cal-day").forEach(el=>el.addEventListener("click",()=>{
+    if(el.dataset.nav){ calM+=parseInt(el.dataset.nav); if(calM<0){calM=11;calY--;} if(calM>11){calM=0;calY++;} renderCal(); return; }
+    openDrawer(el.dataset.key, el.dataset.d);
+  }));
+}
+$("#cal-prev").addEventListener("click",()=>{ calM--; if(calM<0){calM=11;calY--;} renderCal(); });
+$("#cal-next").addEventListener("click",()=>{ calM++; if(calM>11){calM=0;calY++;} renderCal(); });
+let drawerKey=null;
+function openDrawer(key,day){
+  drawerKey=key;
+  $("#dr-date").textContent=MONTHS[calM]+" "+day+", "+calY;
+  renderIdeas();
+  $("#drawer").classList.add("open"); $("#overlay").classList.add("open");
+  setTimeout(()=>$("#dr-input").focus(),250);
+}
+function renderIdeas(){
+  const ideas=calStore[drawerKey]||[];
+  $("#dr-title").textContent=`Ideas (${ideas.length})`;
+  $("#dr-ideas").innerHTML=ideas.map((t,i)=>`<div class="idea-item"><span>${t.replace(/</g,"&lt;")}</span><button data-del="${i}" title="Delete">×</button></div>`).join("")
+    || `<p style="color:var(--mut2);font-size:13px">No ideas yet — add your first one below.</p>`;
+  document.querySelectorAll("[data-del]").forEach(b=>b.addEventListener("click",()=>{
+    calStore[drawerKey].splice(parseInt(b.dataset.del),1);
+    if(!calStore[drawerKey].length) delete calStore[drawerKey];
+    saveCal(); renderIdeas(); renderCal();
+  }));
+}
+function closeDrawer(){ $("#drawer").classList.remove("open"); $("#overlay").classList.remove("open"); }
+$("#dr-close").addEventListener("click",closeDrawer);
+$("#overlay").addEventListener("click",closeDrawer);
+function addIdea(){
+  const v=$("#dr-input").value.trim(); if(!v||!drawerKey) return;
+  (calStore[drawerKey]=calStore[drawerKey]||[]).push(v);
+  saveCal(); $("#dr-input").value=""; renderIdeas(); renderCal(); $("#dr-input").focus();
+}
+$("#dr-add").addEventListener("click",addIdea);
+$("#dr-input").addEventListener("keydown",e=>{ if(e.key==="Enter") addIdea(); });
+
+/* ============ formatter ============ */
+const fmtInput=$("#fmt-input");
+function fmtStats(){
+  const v=fmtInput.value;
+  $("#st-chars").textContent=v.length;
+  $("#st-words").textContent=(v.trim().match(/\S+/g)||[]).length;
+  $("#st-tags").textContent=(v.match(/#[\p{L}\p{N}_]+/gu)||[]).length;
+  $("#st-lines").textContent=v?v.split("\n").length:0;
+}
+fmtInput.addEventListener("input",fmtStats);
+$("#fmt-breaks").addEventListener("click",()=>{
+  // Instagram collapses single line breaks: normalize to clean double breaks,
+  // collapse 3+ breaks, trim trailing spaces.
+  let v=fmtInput.value.replace(/[ \t]+$/gm,"").replace(/\n{3,}/g,"\n\n").trim();
+  v=v.replace(/([^\n])\n([^\n])/g,"$1\n\n$2");
+  fmtInput.value=v; fmtStats(); toast("Line breaks fixed ✓");
+});
+$("#fmt-tags").addEventListener("click",()=>{
+  const tags=[...new Set(fmtInput.value.match(/#[\p{L}\p{N}_]+/gu)||[])];
+  $("#fmt-tags-out").innerHTML=tags.length
+    ? `<div class="card"><h3 style="font-size:14px;margin-bottom:10px">${tags.length} hashtags found</h3>
+       <p style="line-height:2">${tags.join(" ")}</p>
+       <button class="btn sm" id="fmt-tags-copy">Copy hashtags</button></div>`
+    : `<p style="color:var(--mut2);font-size:13px">No hashtags found in the text.</p>`;
+  const c=$("#fmt-tags-copy"); if(c) c.addEventListener("click",()=>copyText(tags.join(" ")));
+});
+$("#fmt-copy").addEventListener("click",()=>{ if(fmtInput.value) copyText(fmtInput.value); });
+
+/* ============ init ============ */
+renderCards(); renderPlaybooks(); renderCal(); fmtStats();
+const h=(location.hash||"").replace("#","");
+if(["hooks","ctas","playbooks","calendar","formatter"].includes(h)) showTool(h);
+</script>
+</body>
+</html>

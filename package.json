@@ -1,0 +1,89 @@
+{
+  "author": {
+    "name": "Taktik AI Studio",
+    "email": "webscansolution@gmail.com"
+  },
+  "build": {
+    "appId": "space.taktikmarketing.studio",
+    "copyright": "Copyright \u00a9 2026 Taktik AI Studio",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "assets/**/*",
+      "package.json"
+    ],
+    "linux": {
+      "artifactName": "Taktik-AI-Studio-${version}.${ext}",
+      "category": "Office",
+      "description": "Taktik AI Studio \u2014 AI marketing toolkit. Create Smarter. Market Faster. Grow Further.",
+      "icon": "assets/icon.png",
+      "target": [
+        "AppImage",
+        "deb"
+      ]
+    },
+    "mac": {
+      "artifactName": "Taktik-AI-Studio-${version}-mac-${arch}.${ext}",
+      "category": "public.app-category.productivity",
+      "darkModeSupport": true,
+      "icon": "assets/icon.icns",
+      "target": [
+        "zip"
+      ]
+    },
+    "nsis": {
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "installerIcon": "assets/icon.ico",
+      "oneClick": false,
+      "perMachine": false,
+      "shortcutName": "Taktik AI Studio",
+      "uninstallDisplayName": "Taktik AI Studio",
+      "uninstallerIcon": "assets/icon.ico",
+      "artifactName": "Taktik-AI-Studio-${version}-win-setup.${ext}"
+    },
+    "productName": "Taktik AI Studio",
+    "publish": [
+      {
+        "owner": "Taktik509",
+        "provider": "github",
+        "repo": "taktik-ai-studio-desktop"
+      }
+    ],
+    "win": {
+      "artifactName": "Taktik-AI-Studio-${version}-win-portable.${ext}",
+      "icon": "assets/icon.ico",
+      "target": [
+        "nsis"
+      ],
+      "signAndEditExecutable": false
+    }
+  },
+  "dependencies": {
+    "electron-updater": "^6.6.2"
+  },
+  "description": "Taktik AI Studio \u2014 native desktop app for Windows, macOS and Linux. Create Smarter. Market Faster. Grow Further.",
+  "devDependencies": {
+    "electron": "39.0.0",
+    "electron-builder": "^26.0.12"
+  },
+  "license": "UNLICENSED",
+  "main": "main.js",
+  "name": "taktik-ai-studio-desktop",
+  "private": true,
+  "productName": "Taktik AI Studio",
+  "scripts": {
+    "dist": "electron-builder",
+    "dist:linux": "electron-builder --linux AppImage deb",
+    "dist:mac": "electron-builder --mac zip",
+    "dist:win": "electron-builder --win zip",
+    "smoke": "electron . --smoke-test",
+    "start": "electron ."
+  },
+  "version": "1.2.0",
+  "homepage": "https://taktikmarketing.space"
+}

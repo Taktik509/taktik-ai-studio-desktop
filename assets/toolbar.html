@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; overflow: hidden; }
+  body {
+    background: #0B1220;
+    color: #E8EDF5;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    gap: 4px;
+    user-select: none;
+    -webkit-user-select: none;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .nav-btn {
+    width: 34px; height: 34px;
+    display: inline-flex; align-items: center; justify-content: center;
+    background: transparent; border: none; border-radius: 8px;
+    color: #C9D4E5; font-size: 19px; cursor: pointer;
+    transition: background .15s, color .15s;
+  }
+  .nav-btn:hover:not(:disabled) { background: rgba(255,255,255,0.10); color: #fff; }
+  .nav-btn:disabled { opacity: 0.28; cursor: default; }
+  .brand {
+    display: flex; align-items: center; gap: 8px;
+    margin-left: 6px; font-size: 13px; font-weight: 600; letter-spacing: .2px;
+    color: #E8EDF5; white-space: nowrap;
+  }
+  .brand .t {
+    width: 22px; height: 22px; border-radius: 6px;
+    background: linear-gradient(135deg, #1E5EFF, #22C55E);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 800; color: #fff;
+  }
+  .spacer { flex: 1; }
+  .hint { font-size: 11px; color: #7C8AA5; white-space: nowrap; }
+</style>
+</head>
+<body>
+  <button class="nav-btn" id="btn-back" title="Back (Alt+Left)">&#8592;</button>
+  <button class="nav-btn" id="btn-fwd" title="Forward (Alt+Right)">&#8594;</button>
+  <button class="nav-btn" id="btn-reload" title="Reload (Ctrl+R)">&#8635;</button>
+  <button class="nav-btn" id="btn-home" title="Dashboard (Ctrl+1)">&#8962;</button>
+  <div class="brand"><span class="t">T</span> Taktik AI Studio</div>
+  <div class="spacer"></div>
+  <div class="hint" id="page-hint"></div>
+<script>
+  const $ = (id) => document.getElementById(id);
+  const back = $('btn-back'), fwd = $('btn-fwd'), reload = $('btn-reload'), home = $('btn-home');
+  back.onclick = () => window.taktik.nav('back');
+  fwd.onclick = () => window.taktik.nav('forward');
+  reload.onclick = () => window.taktik.nav('reload');
+  home.onclick = () => window.taktik.nav('home');
+  function applyState(s) {
+    back.disabled = !s.canGoBack;
+    fwd.disabled = !s.canGoForward;
+  }
+  if (window.taktik && window.taktik.onNavState) {
+    window.taktik.onNavState(applyState);
+    window.taktik.navStateRequest();
+  }
+</script>
+</body>
+</html>

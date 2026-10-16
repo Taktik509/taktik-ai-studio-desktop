@@ -1,0 +1,33 @@
+# Builds the Windows NSIS installer (.exe) on a real Windows runner.
+# (The Linux build VM cannot run NSIS/wine for the installer target.)
+name: Build Windows installer
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-win:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Build NSIS installer
+        run: npx electron-builder --win nsis --x64
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+
+      - name: Upload installer artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: win-setup
+          path: dist/Taktik-AI-Studio-*-win-setup.exe
+          if-no-files-found: error

@@ -1,0 +1,12 @@
+{
+  "date": "2026-10-16T10:45:03.678Z",
+  "siteUp": true,
+  "siteCode": "200",
+  "contentChanged": false,
+  "rebuilt": false,
+  "published": false,
+  "notes": [
+    "site health: HTTP 200 (UP)",
+    "content hash: 83d13b21867a… (last: 83d13b21867a) changed=false"
+  ]
+}
