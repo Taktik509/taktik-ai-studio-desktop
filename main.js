@@ -68,9 +68,12 @@ if (!gotLock) {
   app.quit();
 } else {
   app.on('second-instance', () => {
-    if (mainWindow) {
+    if (mainWindow && !mainWindow.isDestroyed()) {
       if (mainWindow.isMinimized()) mainWindow.restore();
+      if (!mainWindow.isVisible()) mainWindow.show();
       mainWindow.focus();
+    } else {
+      createWindow();
     }
   });
 }
@@ -153,7 +156,10 @@ function createWindow() {
     backgroundColor: BRAND_BG,
     title: 'Taktik AI Studio',
     autoHideMenuBar: false,
-    show: false, // show when ready
+    // NOTE: show immediately — our content lives in BrowserViews, so the
+    // window's own 'ready-to-show' may never fire; waiting on it left the
+    // app running invisible (v1.2.0 bug). backgroundColor avoids any flash.
+    show: true,
   });
 
   toolbarView = new BrowserView({
@@ -181,10 +187,7 @@ function createWindow() {
 
   const wc = contentView.webContents;
 
-  // Show once the window is ready (avoids white flash)
-  mainWindow.once('ready-to-show', () => {
-    if (!SMOKE_TEST) mainWindow.show();
-  });
+  // (window is shown immediately — see show:true above)
 
   // Offline handling: branded offline page with retry
   wc.on('did-fail-load', (_e, errorCode, errorDescription, validatedURL) => {
@@ -493,5 +496,9 @@ app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit();
 });
 app.on('activate', () => {
-  if (BrowserWindow.getAllWindows().length === 0) createWindow();
+  if (BrowserWindow.getAllWindows().length === 0) {
+    createWindow();
+  } else if (mainWindow && !mainWindow.isDestroyed() && !mainWindow.isVisible()) {
+    mainWindow.show();
+  }
 });
