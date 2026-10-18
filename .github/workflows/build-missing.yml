@@ -1,0 +1,71 @@
+name: Build missing v1.2.1 assets (Win portable + Mac)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-win-portable:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Build portable zip
+        run: npx electron-builder --win portable --x64 --publish never
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+
+      - name: Upload to v1.2.1 release
+        run: gh release upload v1.2.1 dist/Taktik-AI-Studio-1.2.1-win-portable.zip --clobber
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build-mac:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Build macOS 11 variants (Electron 37)
+        run: |
+          npm install electron@37.10.3 --no-save --no-audit --no-fund
+          npx electron-builder --mac zip --x64 --arm64 --publish never
+          mv dist/Taktik-AI-Studio-1.2.1-mac-x64.zip dist/Taktik-AI-Studio-1.2.1-mac-x64-macos11.zip
+          mv dist/Taktik-AI-Studio-1.2.1-mac-arm64.zip dist/Taktik-AI-Studio-1.2.1-mac-arm64-macos11.zip
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+
+      - name: Build standard Mac (Electron 39)
+        run: |
+          npm install electron@39.0.0 --no-save --no-audit --no-fund
+          npx electron-builder --mac zip --x64 --arm64 --publish never
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+
+      - name: Upload Mac assets to v1.2.1 release
+        run: gh release upload v1.2.1 dist/Taktik-AI-Studio-1.2.1-mac-x64.zip dist/Taktik-AI-Studio-1.2.1-mac-arm64.zip dist/Taktik-AI-Studio-1.2.1-mac-x64-macos11.zip dist/Taktik-AI-Studio-1.2.1-mac-arm64-macos11.zip --clobber
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
