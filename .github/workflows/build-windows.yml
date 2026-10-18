@@ -26,7 +26,7 @@ jobs:
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'
 
-      - name: Upload to v1.2.0 release
-        run: gh release upload v1.2.0 dist/Taktik-AI-Studio-1.2.0-win-setup.exe dist/latest.yml --clobber
+      - name: Upload to v1.2.1 release
+        run: gh release upload v1.2.1 dist/Taktik-AI-Studio-1.2.1-win-setup.exe dist/latest.yml --clobber
         env:
           GH_TOKEN: ${{ github.token }}
